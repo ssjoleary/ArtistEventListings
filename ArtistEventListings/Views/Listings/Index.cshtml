@@ -7,7 +7,7 @@
 <div class="row">
     <div class="col-md-12 page-header">
         <h3>How many tickets?</h3>
-        <h5>@Model.NumberOfTickets @(@Model.NumberOfTickets > 1 ? "Tickets" : "Ticket") Selected</h5>
+        <h5>@(@Model.NumberOfTickets.HasValue ? @Model.NumberOfTickets : 0) @(@Model.NumberOfTickets != 1 ? "Tickets" : "Ticket") Selected</h5>
         @Html.ActionLink("Any", "Index", "Listings", new { eventId = Model.EventID }, new { @class = "btn btn-default", type = "button" })
         @for (int i = 1; i <= 5; i++)
         {
