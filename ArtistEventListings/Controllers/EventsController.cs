@@ -30,16 +30,24 @@ namespace ArtistEventListings.Controllers
             var token = await _api.OAuth2.GetClientAccessTokenAsync(new List<string>());
             await _api.TokenStore.SetTokenAsync(token);
 
-            var category = await _api.Categories.GetAsync(4243, new GogoKit.Models.Request.CategoryRequest { Page = page, PageSize = 15, OnlyWithTickets = true });
-            var events = await _api.Hypermedia.GetAsync<PagedResource<Event>>(category.EventsLink);
-            EventsViewModel eventsViewModel = new EventsViewModel
+            EventsViewModel eventsViewModel;
+            try
             {
-                Events = events.Items,
-                CurrentPageNum = events.Page.Value,
-                NextPage = events.NextLink != null ? events.Page.Value + 1 : (int?)null,
-                PreviousPage = events.PrevLink != null ? events.Page.Value - 1 : (int?)null,
-                TotalPages = (int)Math.Ceiling((double)events.TotalItems.Value / events.PageSize.Value)
-            };
+                var category = await _api.Categories.GetAsync(4243, new GogoKit.Models.Request.CategoryRequest { Page = page, PageSize = 15, OnlyWithTickets = true });
+                var events = await _api.Hypermedia.GetAsync<PagedResource<Event>>(category.EventsLink);
+                eventsViewModel = new EventsViewModel
+                {
+                    Events = events.Items,
+                    CurrentPageNum = events.Page.Value,
+                    NextPage = events.NextLink != null ? events.Page.Value + 1 : (int?)null,
+                    PreviousPage = events.PrevLink != null ? events.Page.Value - 1 : (int?)null,
+                    TotalPages = (int)Math.Ceiling((double)events.TotalItems.Value / events.PageSize.Value)
+                };
+            }
+            catch (ResourceNotFoundException)
+            {
+                return HttpNotFound();
+            }            
 
             return View(eventsViewModel);
         }        
