@@ -1,0 +1,66 @@
+﻿@using ArtistEventListings.Models;
+@model EventsViewModel
+@{
+    ViewBag.Title = "Event Listings";
+}
+
+<div class="row">
+    <div class="col-md-12 page-header">
+        <h3>Bruce Springsteen Tickets</h3>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-hover table-bordered">
+            <tbody>
+                @foreach (var eventEntry in @Model.Events)
+                {
+                    <tr>
+                        <td>
+                            <span>@eventEntry.StartDate.Value.DayOfWeek</span>
+                            <span class="table-cell-sub-entry">@eventEntry.StartDate.Value.Day/@eventEntry.StartDate.Value.Month/@eventEntry.StartDate.Value.Year</span>
+                            <span class="table-cell-sub-entry">@eventEntry.StartDate.Value.TimeOfDay</span>
+                        </td>
+                        <td>
+                            <span>
+                                @eventEntry.Venue.City,
+                                @if (@eventEntry.Venue.Country.Code.Equals("US"))
+                                {
+                                    @eventEntry.Venue.StateProvince;
+                                }
+                                @eventEntry.Venue.Country.Name
+                            </span>
+                            <span class="table-cell-sub-entry">@eventEntry.Venue.Name</span>
+                            <span class="table-cell-sub-entry">@eventEntry.Name</span>
+                        </td>
+                        <td>
+                            <span>From @eventEntry.MinTicketPrice.Display</span>
+                        </td>
+                        <td>
+                            @Html.ActionLink(eventEntry.ListingsLink.Title, "Index", "Listings", new { eventId = eventEntry.Id }, new { @class = "btn btn-info", type = "button" })
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-offset-5 col-md-6">
+        <div class="btn-group" role="group">
+            @if (@Model.PreviousPage.HasValue)
+            {
+                @Html.ActionLink("Previous", "Index", "Events", new { page = Model.PreviousPage }, new { @class = "btn btn-default", type = "button" })
+            }
+            @for (int i = 1; i <= @Model.TotalPages; i++)
+            {
+                @Html.ActionLink(i.ToString(), "Index", "Events", new { page = i }, new { @class = "btn btn-default", type = "button" })
+            }
+            @if (@Model.NextPage.HasValue)
+            {
+                @Html.ActionLink("Next", "Index", "Events", new { page = Model.NextPage }, new { @class = "btn btn-default", type = "button" })
+            }
+        </div>
+    </div>
+    <span class="table-cell-sub-entry">Page @Model.CurrentPageNum of @Model.TotalPages</span>
+</div>

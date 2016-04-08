@@ -1,0 +1,73 @@
+﻿@using ArtistEventListings.Models
+@model ListingsViewModel
+@{
+    ViewBag.Title = "Ticket Listings";
+}
+
+<div class="row">
+    <div class="col-md-12 page-header">
+        <h3>How many tickets?</h3>
+        <h5>@Model.NumberOfTickets @(@Model.NumberOfTickets > 1 ? "Tickets" : "Ticket") Selected</h5>
+        @Html.ActionLink("Any", "Index", "Listings", new { eventId = Model.EventID }, new { @class = "btn btn-default", type = "button" })
+        @for (int i = 1; i <= 5; i++)
+        {
+            @Html.ActionLink(i.ToString(), "Index", "Listings", new { eventId = Model.EventID, numberOfTickets = i }, new { @class = "btn btn-default", type = "button" })
+        }
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>
+                        Section
+                    </th>
+                    <th></th>
+                    <th>Price/Ticket</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var listing in @Model.Listings)
+                {
+                    <tr>
+                        <td>
+                            <span>@listing.Seating.Section | Row @listing.Seating.Row</span>
+                            <span class="table-cell-sub-entry">@listing.TicketType.Name</span>
+                        </td>
+                        <td>
+                            <span>
+                                @listing.NumberOfTickets @(@listing.NumberOfTickets > 1 ? "Tickets" : "Ticket")
+                            </span>
+                        </td>
+                        <td>
+                            <span>@listing.TicketPrice.Display</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="btn-group" role="group">
+            @if (@Model.PreviousPage.HasValue)
+            {
+                @Html.ActionLink("Previous", "Index", "Listings", new { eventId = Model.EventID, numberOfTickets = Model.NumberOfTickets, page = Model.PreviousPage }, new { @class = "btn btn-default", type = "button" })
+            }
+            @for (int i = 1; i <= @Model.TotalPages; i++)
+            {
+                @Html.ActionLink(i.ToString(), "Index", "Listings", new { eventId = Model.EventID, numberOfTickets = Model.NumberOfTickets, page = i }, new { @class = "btn btn-default", type = "button" })
+            }
+            @if (@Model.NextPage.HasValue)
+            {
+                @Html.ActionLink("Next", "Index", "Listings", new { eventId = Model.EventID, numberOfTickets = Model.NumberOfTickets, page = Model.NextPage }, new { @class = "btn btn-default", type = "button" })
+            }
+        </div>
+        <span>Page @Model.CurrentPageNum of @Model.TotalPages</span>
+    </div>    
+</div>
+
