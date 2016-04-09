@@ -1,4 +1,5 @@
-﻿using Autofac;
+﻿using ArtistEventListings.DAL;
+using Autofac;
 using Autofac.Integration.Mvc;
 using GogoKit;
 using GogoKit.Enumerations;
@@ -15,8 +16,8 @@ namespace ArtistEventListings
 {
     public class MvcApplication : System.Web.HttpApplication
     {
-        private const string ClientIdentifier = "CLIENT ID";
-        private const string ClientSecret = "CLIENT SECRET";
+        private const string ClientIdentifier = "TaRJnBcw1ZvYOXENCtj5";
+        private const string ClientSecret = "ixGDUqRA5coOHf3FQysjd704BPptwbk6zZreELW2aCYSmIT8XJ9ngvN1MuKV";
 
         protected void Application_Start()
         {
@@ -45,6 +46,14 @@ namespace ArtistEventListings
                                                     }))
                    .As<IViagogoClient>()
                    .InstancePerRequest();
+
+            builder.Register(c => new VApiEventRepository(c.Resolve<IViagogoClient>()))
+                .As<IEventRepository>()
+                .InstancePerRequest();
+
+            builder.Register(c => new VApiListingRepository(c.Resolve<IViagogoClient>()))
+                .As<IListingRepository>()
+                .InstancePerRequest();
 
             var container = builder.Build();
             DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
