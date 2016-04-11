@@ -16,13 +16,13 @@ namespace ArtistEventListings.Services
         {
             _repository = repository;
         }
-        public async Task<List<EventModel>> GetEventsWithCheapestHighlighted()
+        public async Task<List<EventsViewModel>> GetEventsWithCheapestHighlighted()
         {
             var allEvents = await _repository.GetEvents();
-            List<EventModel> eventModels = new List<EventModel>();
+            List<EventsViewModel> eventModels = new List<EventsViewModel>();
             foreach (var eventItem in allEvents)
             {
-                eventModels.Add(new EventModel(eventItem));
+                eventModels.Add(new EventsViewModel(eventItem));
             }
             var eventsByCountry = eventModels.GroupBy(e => e.Venue.Country.Code);
 
@@ -31,7 +31,7 @@ namespace ArtistEventListings.Services
                 if (eventCountryGroup.Count() > 1)
                 {
                     var minTicketPrice = eventCountryGroup.Where(e => e.MinTicketPrice != null).Min(e => e.MinTicketPrice.Amount);
-                    EventModel cheapestEvent = eventCountryGroup.Where(e => e.MinTicketPrice != null && e.MinTicketPrice.Amount == minTicketPrice).Single();
+                    EventsViewModel cheapestEvent = eventCountryGroup.Where(e => e.MinTicketPrice != null && e.MinTicketPrice.Amount == minTicketPrice).Single();
                     cheapestEvent.IsCheapestEvent = true;
                 }
             }

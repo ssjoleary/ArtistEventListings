@@ -9,6 +9,6 @@ namespace ArtistEventListings.Services
 {
     public interface IEventService
     {
-        Task<List<EventModel>> GetEventsWithCheapestHighlighted();
+        Task<List<EventsViewModel>> GetEventsWithCheapestHighlighted();
     }
 }
