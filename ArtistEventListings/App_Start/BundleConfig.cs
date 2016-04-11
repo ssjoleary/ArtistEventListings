@@ -10,8 +10,10 @@ namespace ArtistEventListings
         {
             bundles.Add(new ScriptBundle("~/bundles/js").Include(
                         "~/Scripts/jquery-{version}.js",
+                        "~/Scripts/jquery.pubsub.js",
                         "~/Scripts/jquery-ui-{version}.js",
-                        "~/Scripts/knockout-{version}.js"));
+                        "~/Scripts/knockout-{version}.js",
+                        "~/Scripts/ko.pager.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/Scripts/jquery.validate*"));
@@ -25,9 +27,16 @@ namespace ArtistEventListings
                       "~/Scripts/bootstrap.js",
                       "~/Scripts/respond.js"));
 
+            bundles.Add(new ScriptBundle("~/bundles/eventsjs").Include(
+                      "~/Scripts/Events/eventsViewModel.js"));
+
+            bundles.Add(new ScriptBundle("~/bundles/listingsjs").Include(
+                      "~/Scripts/Listings/listingsViewModel.js"));
+
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
                       "~/Content/themes/base/all.css",
+                      "~/Content/font-awesome.min.css",
                       "~/Content/site.css"));
         }
     }

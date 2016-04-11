@@ -1,6 +1,7 @@
 ﻿using ArtistEventListings.Models;
 using GogoKit;
 using GogoKit.Models.Request;
+using GogoKit.Models.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,23 +19,14 @@ namespace ArtistEventListings.DAL
             _api = api;
         }
 
-        public async Task<ListingsViewModel> GetListings(int eventId, int? numberOfTickets, int? page = 1)
+        public async Task<PagedResource<Listing>> GetListings(int eventId, int? numberOfTickets, int? page = 1)
         {
-            ListingsViewModel listingsViewModel;
-            var listings = await _api.Listings.GetByEventAsync(eventId, new ListingRequest { Page = page, PageSize = 16, NumberOfTickets = numberOfTickets });
+            return await _api.Listings.GetByEventAsync(eventId, new ListingRequest { Page = page, PageSize = 16, NumberOfTickets = numberOfTickets });
+        }
 
-            listingsViewModel = new ListingsViewModel
-            {
-                EventID = eventId,
-                NumberOfTickets = numberOfTickets,
-                Listings = listings.Items,
-                CurrentPageNum = listings.Page.Value,
-                NextPage = listings.NextLink != null ? listings.Page.Value + 1 : (int?)null,
-                PreviousPage = listings.PrevLink != null ? listings.Page.Value - 1 : (int?)null,
-                TotalPages = (int)Math.Ceiling((double)listings.TotalItems.Value / listings.PageSize.Value)
-            };
-
-            return listingsViewModel;
+        public async Task<IReadOnlyList<Listing>> GetListingsByTicketType(int eventId, int? numberOfTickets)
+        {
+            return await _api.Listings.GetAllByEventAsync(eventId, new ListingRequest { NumberOfTickets = numberOfTickets });
         }
     }
 }

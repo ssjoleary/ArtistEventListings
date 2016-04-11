@@ -14,6 +14,6 @@ namespace ArtistEventListings.Models
         public int? NextPage { get; set; }
         public int? PreviousPage { get; set; }
         public int? CurrentPageNum { get; set; }
-        public int? TotalPages { get; set; }
+        public int? TotalListings { get; set; }
     }
 }

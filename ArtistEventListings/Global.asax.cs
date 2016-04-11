@@ -1,4 +1,5 @@
 ﻿using ArtistEventListings.DAL;
+using ArtistEventListings.Services;
 using Autofac;
 using Autofac.Integration.Mvc;
 using GogoKit;
@@ -53,6 +54,14 @@ namespace ArtistEventListings
 
             builder.Register(c => new VApiListingRepository(c.Resolve<IViagogoClient>()))
                 .As<IListingRepository>()
+                .InstancePerRequest();
+
+            builder.Register(c => new EventService(c.Resolve<IEventRepository>()))
+                .As<IEventService>()
+                .InstancePerRequest();
+
+            builder.Register(c => new ListingService(c.Resolve<IListingRepository>()))
+                .As<IListingService>()
                 .InstancePerRequest();
 
             var container = builder.Build();

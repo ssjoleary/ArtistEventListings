@@ -1,5 +1,6 @@
 ﻿using ArtistEventListings.DAL;
 using ArtistEventListings.Models;
+using ArtistEventListings.Services;
 using GogoKit;
 using GogoKit.Enumerations;
 using GogoKit.Exceptions;
@@ -18,17 +19,22 @@ namespace ArtistEventListings.Controllers
 {
     public class EventsController : Controller
     {
-        private IEventRepository _repository;
+        private IEventService _eventService;
 
-        public EventsController(IEventRepository repository)
+        public EventsController(IEventService eventService)
         {
-            _repository = repository;
+            _eventService = eventService;
+        }
+
+        public ActionResult Index()
+        {
+            return this.View();
         }
 
         [Route("", Name = "Events")]
-        public async Task<ActionResult> Index(int? page = 1)
+        public async Task<JsonResult> GetEventsWithCheapestHighlighted()
         {
-            return View(await _repository.GetEvents());
+            return Json(await _eventService.GetEventsWithCheapestHighlighted(), JsonRequestBehavior.AllowGet);
         }        
     }
 }

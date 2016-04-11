@@ -21,24 +21,12 @@ namespace ArtistEventListings.DAL
             _api = api;
         }
 
-        public async Task<EventsViewModel> GetEvents(int? page = 1)
+        public async Task<IReadOnlyList<Event>> GetEvents()
         {
             var token = await _api.OAuth2.GetClientAccessTokenAsync(new List<string>());
             await _api.TokenStore.SetTokenAsync(token);
 
-            EventsViewModel eventsViewModel;
-            var category = await _api.Categories.GetAsync(4243, new CategoryRequest { Page = page, PageSize = 15, OnlyWithTickets = true });
-            var events = await _api.Hypermedia.GetAsync<PagedResource<Event>>(category.EventsLink);
-            eventsViewModel = new EventsViewModel
-            {
-                Events = events.Items,
-                CurrentPageNum = events.Page.Value,
-                NextPage = events.NextLink != null ? events.Page.Value + 1 : (int?)null,
-                PreviousPage = events.PrevLink != null ? events.Page.Value - 1 : (int?)null,
-                TotalPages = (int)Math.Ceiling((double)events.TotalItems.Value / events.PageSize.Value)
-            };
-
-            return eventsViewModel;
+            return await _api.Events.GetAllByCategoryAsync(4243);
         }
     }
 }

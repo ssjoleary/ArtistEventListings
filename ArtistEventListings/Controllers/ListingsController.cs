@@ -1,5 +1,6 @@
 ﻿using ArtistEventListings.DAL;
 using ArtistEventListings.Models;
+using ArtistEventListings.Services;
 using GogoKit;
 using GogoKit.Exceptions;
 using GogoKit.Models.Response;
@@ -15,17 +16,27 @@ namespace ArtistEventListings.Controllers
 {
     public class ListingsController : Controller
     {
-        private readonly IListingRepository _repository;
+        private readonly IListingService _listingService;
 
-        public ListingsController(IListingRepository repository)
+        public ListingsController(IListingService listingService)
         {
-            _repository = repository;
+            _listingService = listingService;
         }
-        
+
         [Route("", Name = "Listings")]
-        public async Task<ActionResult> Index(int eventId, int? numberOfTickets, int? page = 1)
+        public ActionResult Index()
         {
-            return View(await _repository.GetListings(eventId, numberOfTickets, page));
+            return View();
+        }
+                
+        public async Task<JsonResult> GetListings(int eventId, int? numberOfTickets, int? page = 1)
+        {
+            return Json(await _listingService.GetListings(eventId, numberOfTickets, page), JsonRequestBehavior.AllowGet);
+        }
+
+        public async Task<JsonResult> GetListingsByTicketType(int eventId, int? numberOfTickets, string ticketType, int? page = 1)
+        {
+            return Json(await _listingService.GetListingsByTicketType(eventId, numberOfTickets, ticketType, page), JsonRequestBehavior.AllowGet);
         }
     }
 }

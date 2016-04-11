@@ -1,73 +1,131 @@
-﻿@using ArtistEventListings.Models
-@model ListingsViewModel
-@{
+﻿@{
     ViewBag.Title = "Ticket Listings";
 }
+@section scripts {
+    @Scripts.Render("~/bundles/listingsjs")
+    <script type="text/javascript">
+        listingsViewModule.init();
+    </script>
+}
 
-<div class="row">
-    <div class="col-md-12 page-header">
-        <h3>How many tickets?</h3>
-        <h5>@(@Model.NumberOfTickets.HasValue ? @Model.NumberOfTickets.ToString() : "Any Number of ") @(@Model.NumberOfTickets != 1 ? "Tickets" : "Ticket") Selected</h5>
-        @Html.ActionLink("Any", "Index", "Listings", new { eventId = Model.EventID }, new { @class = "btn btn-default", type = "button" })
-        @for (int i = 1; i <= 5; i++)
-        {
-            @Html.ActionLink(i.ToString(), "Index", "Listings", new { eventId = Model.EventID, numberOfTickets = i }, new { @class = "btn btn-default", type = "button" })
-        }
+<div class="listingsContainer">
+    <div class="row">
+        <div class="col-md-12 page-header">
+            <div class="col-md-6">
+                <h3>How many tickets?</h3>
+                <h5 data-bind="text: ticketsSelectedText()"></h5>
+                <button data-bind="click: function(data, event){setSelectedTicketAmount(null)}" class="btn btn-default">Any</button>
+                <button data-bind="click: function(data, event){setSelectedTicketAmount(1)}" class="btn btn-default">1</button>
+                <button data-bind="click: function(data, event){setSelectedTicketAmount(2)}" class="btn btn-default">2</button>
+                <button data-bind="click: function(data, event){setSelectedTicketAmount(3)}" class="btn btn-default">3</button>
+                <button data-bind="click: function(data, event){setSelectedTicketAmount(4)}" class="btn btn-default">4</button>
+                <button data-bind="click: function(data, event){setSelectedTicketAmount(5)}" class="btn btn-default">5</button>
+            </div>
+            <div class="col-md-6">
+                <h3>Ticket Type</h3>
+                <select data-bind="options: ticketTypes(), value: selectedTicketType"></select>
+            </div>
+        </div>
     </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-        <table class="table table-bordered table-hover">
-            <thead>
-                <tr>
-                    <th>
-                        Section
-                    </th>
-                    <th></th>
-                    <th>Price/Ticket</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var listing in @Model.Listings)
-                {
+    <div class="row">
+        <div class="col-md-12">
+            <div class="text-center" data-bind="visible: loading">
+                <i class="fa fa-spinner fa-pulse fa-lg"></i>
+            </div>
+            <table class="table table-hover" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>
+                            <span>Section</span>
+                        </th>
+                        <th></th>
+                        <th class="center-block">
+                            <span>Price/Ticket</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- ko foreach: listings()-->
                     <tr>
                         <td>
-                            <span>@listing.Seating.Section | Row @listing.Seating.Row</span>
-                            <span class="table-cell-sub-entry">@listing.TicketType.Name</span>
+                            <span data-bind="text: Seating.Row === null ? Seating.Section : Seating.Section + ' | Row ' + Seating.Row"></span>
+                            <span data-bind="text: TicketType.Name === null ? TicketType.Type : TicketType.Name" class="tblcell-footer"></span>
                         </td>
-                        <td>
-                            <span>
-                                @listing.NumberOfTickets @(@listing.NumberOfTickets > 1 ? "Tickets" : "Ticket")
-                            </span>
+                        <td class="center-block">
+                            <span data-bind="text: NumberOfTickets + (NumberOfTickets > 1 ? ' Tickets' : ' Ticket') + ' Left'"></span>
                         </td>
-                        <td>
-                            <span>@listing.TicketPrice.Display</span>
+                        <td class="center-block">
+                            <span data-bind="text: TicketPrice.Display" class="tblcell-header"></span>
                         </td>
                     </tr>
-                }
-            </tbody>
+                    <!-- /ko -->
+                </tbody>
 
-        </table>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-12">
-        <div class="btn-group" role="group">
-            @if (@Model.PreviousPage.HasValue)
-            {
-                @Html.ActionLink("Previous", "Index", "Listings", new { eventId = Model.EventID, numberOfTickets = Model.NumberOfTickets, page = Model.PreviousPage }, new { @class = "btn btn-default", type = "button" })
-            }
-            @for (int i = 1; i <= @Model.TotalPages; i++)
-            {
-                @Html.ActionLink(i.ToString(), "Index", "Listings", new { eventId = Model.EventID, numberOfTickets = Model.NumberOfTickets, page = i }, new { @class = "btn btn-default", type = "button" })
-            }
-            @if (@Model.NextPage.HasValue)
-            {
-                @Html.ActionLink("Next", "Index", "Listings", new { eventId = Model.EventID, numberOfTickets = Model.NumberOfTickets, page = Model.NextPage }, new { @class = "btn btn-default", type = "button" })
-            }
+            </table>
         </div>
-        <span>Page @Model.CurrentPageNum of @Model.TotalPages</span>
-    </div>    
+    </div>
+
+    <div class="row">
+        <div class="col-md-offset-5 col-md-8">
+            <!-- ko foreach: pagedListings() -->
+            <!-- ko if: pager().LastPage() > 1 -->
+            <ul class='pagination pagination-sm' style='margin:0 auto; display: none;'>
+                <!-- ko if:pager().CurrentPage() === 1 -->
+                <li class="disabled">
+                    <a href="#" class="disabledPage">&laquo;&laquo;</a>
+                </li>
+                <!-- /ko -->
+                <!-- ko ifnot:pager().CurrentPage() === 1 -->
+                <li>
+                    <a href="#" data-bind="click: function(data, event) { $parents[0].goToPage(1) ; }">&laquo;&laquo;</a>
+                </li>
+                <!-- /ko -->
+                <!-- ko if:pager().HasPrevPage -->
+                <li>
+                    <a href="#" data-bind="click: function(data, event) { $parents[0].goToPage(pager().CurrentPage() - 1); }">&laquo;</a>
+                </li>
+                <!-- /ko -->
+                <!-- ko ifnot:pager().HasPrevPage -->
+                <li class="disabled">
+                    <a href="#" class="disabledPage">&laquo;</a>
+                </li>
+                <!-- /ko -->
+                <!-- ko foreach:pager().Pages -->
+                <!-- ko if:$data === $parent.pager().CurrentPage() -->
+                <li class="active">
+                    <span class="currentPage" data-bind="text: $data"></span>
+                </li>
+                <!-- /ko -->
+                <!-- ko if:$data !== $parent.pager().CurrentPage() -->
+                <li>
+                    <a href="#" data-bind="text: $data, click: function(data, event) { $parents[1].goToPage($data); }"></a>
+                </li>
+                <!-- /ko -->
+                <!-- /ko -->
+                <!-- ko if:pager().HasNextPage -->
+                <li>
+                    <a href="#" data-bind="click: function(data, event) { $parents[0].goToPage(pager().CurrentPage() + 1); }">&raquo;</a>
+                </li>
+                <!-- /ko -->
+                <!-- ko ifnot:pager().HasNextPage -->
+                <li class="disabled">
+                    <a href="#" class="disabledPage">&raquo;</a>
+                </li>
+                <!-- /ko -->
+                <!-- ko ifnot:pager().CurrentPage() === pager().LastPage() -->
+                <li>                    
+                    <a href="#" data-bind="click: function(data, event) { $parents[0].goToPage(pager().LastPage()); }">&raquo;&raquo;</a>
+                </li>
+                <!-- /ko -->
+                <!-- ko if:pager().CurrentPage() === pager().LastPage() -->
+                <li class="disabled">
+                    <a href="#" class="disabledPage">&raquo;&raquo;</a>
+                </li>
+                <!-- /ko -->
+            </ul>
+            <!-- /ko -->
+            <!-- /ko -->
+        </div>
+    </div>
 </div>
 

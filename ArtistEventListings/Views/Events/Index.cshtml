@@ -1,66 +1,120 @@
-﻿@using ArtistEventListings.Models;
-@model EventsViewModel
-@{
-    ViewBag.Title = "Event Listings";
+﻿@{
+    ViewBag.Title = "Index";
 }
 
-<div class="row">
-    <div class="col-md-12 page-header">
-        <h3>Bruce Springsteen Tickets</h3>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-        <table class="table table-hover table-bordered">
-            <tbody>
-                @foreach (var eventEntry in @Model.Events)
-                {
-                    <tr>
-                        <td>
-                            <span>@eventEntry.StartDate.Value.DayOfWeek</span>
-                            <span class="table-cell-sub-entry">@eventEntry.StartDate.Value.Day/@eventEntry.StartDate.Value.Month/@eventEntry.StartDate.Value.Year</span>
-                            <span class="table-cell-sub-entry">@eventEntry.StartDate.Value.TimeOfDay</span>
-                        </td>
-                        <td>
-                            <span>
-                                @eventEntry.Venue.City,
-                                @if (@eventEntry.Venue.Country.Code.Equals("US"))
-                                {
-                                    @eventEntry.Venue.StateProvince;
-                                }
-                                @eventEntry.Venue.Country.Name
-                            </span>
-                            <span class="table-cell-sub-entry">@eventEntry.Venue.Name</span>
-                            <span class="table-cell-sub-entry">@eventEntry.Name</span>
-                        </td>
-                        <td>
-                            <span>From @eventEntry.MinTicketPrice.Display</span>
-                        </td>
-                        <td>
-                            @Html.ActionLink(eventEntry.ListingsLink.Title, "Index", "Listings", new { eventId = eventEntry.Id }, new { @class = "btn btn-info", type = "button" })
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-offset-5 col-md-6">
-        <div class="btn-group" role="group">
-            @if (@Model.PreviousPage.HasValue)
-            {
-                @Html.ActionLink("Previous", "Index", "Events", new { page = Model.PreviousPage }, new { @class = "btn btn-default", type = "button" })
-            }
-            @for (int i = 1; i <= @Model.TotalPages; i++)
-            {
-                @Html.ActionLink(i.ToString(), "Index", "Events", new { page = i }, new { @class = "btn btn-default", type = "button" })
-            }
-            @if (@Model.NextPage.HasValue)
-            {
-                @Html.ActionLink("Next", "Index", "Events", new { page = Model.NextPage }, new { @class = "btn btn-default", type = "button" })
-            }
+@section scripts {
+    @Scripts.Render("~/bundles/eventsjs")
+    <script type="text/javascript">
+        eventsViewModule.init();
+    </script>
+}
+
+<div id="eventsContainer">
+    <div class="row">
+        <div class="col-md-12 page-header">
+            <h3>Bruce Springsteen Tickets</h3>
         </div>
     </div>
-    <span class="table-cell-sub-entry">Page @Model.CurrentPageNum of @Model.TotalPages</span>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="text-center" data-bind="visible: loading">
+                <i class="fa fa-spinner fa-pulse fa-lg"></i>
+            </div>
+            <table class="table table-hover" style="display: none;">
+                <tbody>
+                    <!-- ko foreach: pagedEvents() -->
+                    <!-- ko foreach: events() -->
+                        <tr class="row-ptr">
+                            <td>
+                                <span class="tblcell-header" data-bind="text: StartDate.toDateString()"></span>                                
+                                <span class="tblcell-footer" data-bind="text: StartDate.toLocaleTimeString()"></span>
+                            </td>
+                            <td>
+                                <span class="tblcell-header" data-bind="text: Venue.City + ','"></span>
+                                <span class="tblcell-header" data-bind="text: Venue.Country.Code === 'US' ? Venue.StateProvince + ',' : ''"></span>
+                                <span class="tblcell-header" data-bind="text: Venue.Country.Name"></span>
+                                <span class="tblcell-text" data-bind="text: Venue.Name"></span>
+                                <span class="tblcell-footer" data-bind="text: Name"></span>
+                            </td>
+                            <td class="center-block">                                
+                                <span data-bind="visible: IsCheapestEvent, text: 'Lowest Cost Tickets for ' + Venue.Country.Name + '!!'" class="label label-success lowest-cost-label"></span>
+                            </td>
+                            <td class="center-block">
+                                <div class="blk">
+                                    <span class="tblcell-footer-noblk" data-bind="text: MinTicketPrice === null ? '' : 'From '"></span>
+                                    <span class="tblcell-header" data-bind="text: MinTicketPrice === null ? '' : MinTicketPrice.Display"></span>
+                                </div>
+                                <button class="btn btn-info text-center" data-bind="click: function(data) {$root.viewTickets(data)}">View Tickets</button>
+                            </td>
+                        </tr>
+                    <!-- /ko -->
+                    <!-- /ko -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-offset-5 col-md-8">
+            <!-- ko foreach: pagedEvents() -->
+            <!-- ko if: pager().LastPage() > 1 -->
+            <ul class='pagination pagination-sm' style='margin:0 auto; display: none;'>
+                <!-- ko if:pager().CurrentPage() === 1 -->
+                <li class="disabled">
+                    <a href="#" class="disabledPage">&laquo;&laquo;</a>
+                </li>
+                <!-- /ko -->
+                <!-- ko ifnot:pager().CurrentPage() === 1 -->
+                <li>
+                    <a href="#" data-bind="click: function(data, event) { $parents[0].goToPage(1) ; }">&laquo;&laquo;</a>
+                </li>
+                <!-- /ko -->
+                <!-- ko if:pager().HasPrevPage -->
+                <li>
+                    <a href="#" data-bind="click: function(data, event) { $parents[0].goToPage(pager().CurrentPage() - 1); }">&laquo;</a>
+                </li>
+                <!-- /ko -->
+                <!-- ko ifnot:pager().HasPrevPage -->
+                <li class="disabled">
+                    <a href="#" class="disabledPage">&laquo;</a>
+                </li>
+                <!-- /ko -->
+                <!-- ko foreach:pager().Pages -->
+                <!-- ko if:$data === $parent.pager().CurrentPage() -->
+                <li class="active">
+                    <span class="currentPage" data-bind="text: $data"></span>
+                </li>
+                <!-- /ko -->
+                <!-- ko if:$data !== $parent.pager().CurrentPage() -->
+                <li>
+                    <a href="#" data-bind="text: $data, click: function(data, event) { $parents[1].goToPage($data); }"></a>
+                </li>
+                <!-- /ko -->
+                <!-- /ko -->
+                <!-- ko if:pager().HasNextPage -->
+                <li>
+                    <a href="#" data-bind="click: function(data, event) { $parents[0].goToPage(pager().CurrentPage() + 1); }">&raquo;</a>
+                </li>
+                <!-- /ko -->
+                <!-- ko ifnot:pager().HasNextPage -->
+                <li class="disabled">
+                    <a href="#" class="disabledPage">&raquo;</a>
+                </li>
+                <!-- /ko -->
+                <!-- ko ifnot:pager().CurrentPage() === pager().LastPage() -->
+                <li>
+                    <a href="#" data-bind="click: function(data, event) { $parents[0].goToPage(pager().LastPage()); }">&raquo;&raquo;</a>
+                </li>
+                <!-- /ko -->
+                <!-- ko if:pager().CurrentPage() === pager().LastPage() -->
+                <li class="disabled">
+                    <a href="#" class="disabledPage">&raquo;&raquo;</a>
+                </li>
+                <!-- /ko -->
+            </ul>
+            <!-- /ko -->
+            <!-- /ko -->
+        </div>        
+    </div>
+
 </div>
+

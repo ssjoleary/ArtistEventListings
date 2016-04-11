@@ -23,6 +23,38 @@ textarea {
     max-width: 280px;
 }
 
-.table-cell-sub-entry {
-    display: block
+.tblcell-header {
+    font-weight: bold;
+}
+
+.tblcell-text {
+    display:block;
+}
+
+.tblcell-footer {
+    font-size: 85%;
+    color: darkgray;
+    display: block;
+}
+.tblcell-footer-noblk {
+    font-size: 85%;
+    color: darkgray;
+}
+
+.table > tbody > tr > .center-block,
+.table > thead > tr > .center-block {  
+  vertical-align: middle;
+  text-align: center;
+}
+
+.lowest-cost-label {
+    display:block;
+    font-size: 13px;
+}
+
+.blk {
+    display:block;
+}
+.row-ptr {
+    cursor: pointer;
 }

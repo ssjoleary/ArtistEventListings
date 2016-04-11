@@ -1,4 +1,5 @@
 ﻿using ArtistEventListings.Models;
+using GogoKit.Models.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,6 @@ namespace ArtistEventListings.DAL
 {
     public interface IEventRepository
     {
-        Task<EventsViewModel> GetEvents(int? page = 1);
+        Task<IReadOnlyList<Event>> GetEvents();
     }
 }
